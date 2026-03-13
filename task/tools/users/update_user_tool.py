@@ -8,23 +8,33 @@ class UpdateUserTool(BaseUserServiceTool):
 
     @property
     def name(self) -> str:
-        #TODO: Provide tool name as `update_user`
-        raise NotImplementedError()
+        return "update_user"
 
     @property
     def description(self) -> str:
-        #TODO: Provide description of this tool
-        raise NotImplementedError()
+        return 'update user information'
 
     @property
     def input_schema(self) -> dict[str, Any]:
-        #TODO:
-        # Provide tool params Schema:
-        # - id: number, required, User ID that should be updated.
-        # - new_info: UserUpdate.model_json_schema()
-        raise NotImplementedError()
+        return {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "User id that should be updated"
+                },
+                "new_info": UserUpdate.model_json_schema()
+            },
+            "required": ["id"]
+        }
 
     def execute(self, arguments: dict[str, Any]) -> str:
+        try:
+            user_id = int(arguments["id"])
+            to_update = UserUpdate.model_validate(str(arguments['new_info']))
+            self._user_client.update_user(user_id=user_id, user_update_model=to_update)
+        except Exception as e:
+            return f"Error while updating user: {str(e)}"
         #TODO:
         # 1. Get user `id` from `arguments`
         # 2. Get `new_info` from `arguments` and create `UserUpdate` via pydentic `UserUpdate.model_validate`
